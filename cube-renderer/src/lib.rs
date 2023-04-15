@@ -3,14 +3,19 @@ mod model;
 mod resources;
 mod utils;
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Mutex};
 
-use app::App;
+use app::{App, AppState};
 use model::Entity;
+use utils::window;
 use wasm_bindgen::prelude::*;
 use web_sys::{WebGl2RenderingContext, WebGlProgram, WebGlShader};
 
 use crate::utils::request_animation_frame;
+
+lazy_static::lazy_static! {
+    static ref HANDLE: Mutex<AppState> = Mutex::new(AppState::None);
+}
 
 fn start_loop(mut app: App) {
     let f = Rc::new(RefCell::new(None));
@@ -18,7 +23,7 @@ fn start_loop(mut app: App) {
 
     console::info!("Starting render loop");
     *g.borrow_mut() = Some(Closure::new(move || {
-        app.render();
+        app.render(HANDLE.lock().unwrap());
         request_animation_frame(f.borrow().as_ref().unwrap());
     }));
     request_animation_frame(g.borrow().as_ref().unwrap());
@@ -27,11 +32,35 @@ fn start_loop(mut app: App) {
 #[wasm_bindgen]
 pub fn run() -> Result<(), JsValue> {
     let mut app = App::new()?;
+    init_events()?;
 
     let cube = make_cube();
     app.entities.add(cube);
 
     start_loop(app);
+    Ok(())
+}
+
+fn init_events() -> Result<(), JsValue> {
+    let resize_callback = Closure::<dyn FnMut()>::new(move || {
+        let window = window();
+        let width = window.inner_width().unwrap().as_f64().unwrap() as u32;
+        let height = window.inner_height().unwrap().as_f64().unwrap() as u32;
+        console::log!("Resized to {}x{}", width, height);
+        let mut state = HANDLE.lock().unwrap();
+        match *state {
+            AppState::State(ref mut state) => {
+                let window = &mut state.window;
+                window.width = width;
+                window.height = height;
+            }
+            AppState::None => {}
+        }
+    });
+    window()
+        .add_event_listener_with_callback("resize", resize_callback.as_ref().unchecked_ref())?;
+    resize_callback.forget();
+
     Ok(())
 }
 

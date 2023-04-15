@@ -1,10 +1,14 @@
+use std::{ops::Deref, sync::MutexGuard};
+
 use wasm_bindgen::prelude::*;
 use web_sys::{HtmlCanvasElement, WebGl2RenderingContext};
 
 use crate::{
     model::{Drawable, EntityBuffer},
-    utils::Instant,
+    utils::{window, Instant},
 };
+
+use super::AppState;
 
 pub struct App {
     pub canvas: HtmlCanvasElement,
@@ -25,18 +29,20 @@ impl App {
             .unwrap()
             .dyn_into::<WebGl2RenderingContext>()?;
 
-        Ok(App {
+        let app = App {
             canvas,
             gl,
             entities: EntityBuffer::new(),
             now: Instant::now(),
-        })
+        };
+
+        Ok(app)
     }
 
-    pub fn render(&mut self) {
+    pub fn render(&mut self, state: MutexGuard<AppState>) {
         let dt = self.now.elapsed() as f32;
 
-        self.update(dt);
+        self.update(dt, state);
         self.draw(dt);
     }
 
@@ -45,7 +51,7 @@ impl App {
         self.gl.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
     }
 
-    pub fn update(&mut self, dt: f32) {}
+    pub fn update(&mut self, dt: f32, state: MutexGuard<AppState>) {}
     pub fn draw(&mut self, dt: f32) {
         self.clear();
         self.entities.draw(&self.gl);

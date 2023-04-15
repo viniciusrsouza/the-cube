@@ -1,3 +1,4 @@
+use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 
 pub fn window() -> web_sys::Window {
@@ -16,6 +17,12 @@ pub fn now() -> f64 {
         Some(perf) => perf.now(),
         None => 0.,
     }
+}
+
+pub fn memory() -> WebAssembly::Memory {
+    wasm_bindgen::memory()
+        .dyn_into::<WebAssembly::Memory>()
+        .expect("Failed to get memory")
 }
 
 pub struct Instant {

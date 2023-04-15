@@ -16,5 +16,5 @@
 	<div class="absolute bg-gray-500 px-4 py-2 m-2 rounded-sm top-0 z-10 opacity-40">
 		{height}px x {width}px
 	</div>
-	<canvas id="canvas" class="w-full h-full" />
+	<canvas id="canvas" class="w-full h-full" {width} {height} />
 </div>

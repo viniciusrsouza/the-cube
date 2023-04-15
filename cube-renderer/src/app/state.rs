@@ -1,13 +1,16 @@
-pub struct Window {
+#[derive(Debug)]
+pub struct Viewport {
     pub width: u32,
     pub height: u32,
 }
 
-pub struct State {
-    pub window: Window,
+#[derive(Debug)]
+pub struct AppState {
+    pub viewport: Option<Viewport>,
 }
 
-pub enum AppState {
-    State(State),
-    None,
+impl AppState {
+    pub fn new() -> AppState {
+        AppState { viewport: None }
+    }
 }

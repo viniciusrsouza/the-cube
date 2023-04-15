@@ -1,3 +1,5 @@
+use crate::resources::Assets;
+
 use super::{renderable::Drawable, Entity};
 
 pub struct EntityBuffer {
@@ -5,6 +7,7 @@ pub struct EntityBuffer {
     entities: Vec<Entity>,
 }
 
+#[allow(dead_code)]
 impl EntityBuffer {
     pub fn new() -> Self {
         Self {
@@ -32,24 +35,21 @@ impl EntityBuffer {
     }
 
     pub fn get_renderables(&self) -> Vec<&Entity> {
-        self.entities
-            .iter()
-            .filter(|e| e.renderable.is_some())
-            .collect()
+        self.entities.iter().filter(|e| e.is_renderable()).collect()
     }
 
     pub fn get_renderables_mut(&mut self) -> Vec<&mut Entity> {
         self.entities
             .iter_mut()
-            .filter(|e| e.renderable.is_some())
+            .filter(|e| e.is_renderable())
             .collect()
     }
 }
 
 impl Drawable for EntityBuffer {
-    fn draw(&self, gl: &web_sys::WebGl2RenderingContext) {
+    fn draw(&self, gl: &web_sys::WebGl2RenderingContext, assets: &Assets) {
         for entity in self.get_renderables() {
-            entity.draw(gl);
+            entity.draw(gl, assets);
         }
     }
 }

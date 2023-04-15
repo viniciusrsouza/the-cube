@@ -1,6 +1,5 @@
 mod app;
 mod model;
-#[macro_use]
 mod resources;
 mod sandbox;
 mod utils;

@@ -14,6 +14,7 @@ js-sys = "0.3.61"
 lazy_static = "1.4.0"
 wasm-bindgen = "0.2.84"
 wasm-bindgen-futures = "0.4.34"
+nalgebra-glm = "0.18.0"
 
 [dependencies.web-sys]
 version = "0.3.4"
@@ -32,6 +33,8 @@ features = [
   'WebGl2RenderingContext',
   'WebGlProgram',
   'WebGlShader',
+  'WebGlUniformLocation',
+  'WebGlTexture',
   
   'Headers',
   'Request',

@@ -4,7 +4,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::{HtmlCanvasElement, WebGl2RenderingContext};
 
 use crate::{
-    model::{Drawable, EntityBuffer},
+    camera::Camera,
+    model::{DrawableContext, EntityBuffer},
     resources::Assets,
     utils::Instant,
 };
@@ -18,6 +19,7 @@ pub struct App {
     pub entities: EntityBuffer,
     pub assets: Assets,
     now: Instant,
+    camera: Camera,
 }
 
 impl App {
@@ -39,6 +41,7 @@ impl App {
             entities: EntityBuffer::new(),
             assets: Assets::new(),
             now: Instant::now(),
+            camera: Camera::new(glm::vec3(0., 2.5, 5.), glm::vec3(0., 1., 0.), -90., -25.),
         };
 
         Ok(app)
@@ -49,6 +52,8 @@ impl App {
 
         self.update(dt, state);
         self.draw(dt);
+
+        self.now.reset();
     }
 
     fn clear(&self) {
@@ -58,12 +63,19 @@ impl App {
         );
     }
 
-    pub fn update(&mut self, _dt: f32, state: MutexGuard<AppState>) {
+    pub fn update(&mut self, dt: f32, state: MutexGuard<AppState>) {
         self.sync_state(state);
+
+        self.entities.update(dt);
     }
     pub fn draw(&mut self, _dt: f32) {
+        let viewport = Viewport {
+            width: self.canvas.width() as u32,
+            height: self.canvas.height() as u32,
+        };
+        let mut ctx = DrawableContext::new(&self.gl, &self.camera, &self.assets, &viewport);
         self.clear();
-        self.entities.draw(&self.gl, &self.assets);
+        self.entities.draw(&self.gl, &mut ctx);
     }
 
     fn sync_state(&mut self, mut state: MutexGuard<AppState>) {

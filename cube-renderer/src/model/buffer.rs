@@ -1,6 +1,6 @@
-use crate::resources::Assets;
+use web_sys::WebGl2RenderingContext;
 
-use super::{renderable::Drawable, Entity};
+use super::{DrawableContext, Entity, Light};
 
 pub struct EntityBuffer {
     last_id: u32,
@@ -44,12 +44,26 @@ impl EntityBuffer {
             .filter(|e| e.is_renderable())
             .collect()
     }
-}
 
-impl Drawable for EntityBuffer {
-    fn draw(&self, gl: &web_sys::WebGl2RenderingContext, assets: &Assets) {
-        for entity in self.get_renderables() {
-            entity.draw(gl, assets);
+    pub fn get_lights(&mut self) -> Vec<Light> {
+        self.entities
+            .iter_mut()
+            .filter(|e| e.is_light_source())
+            .map(|e| e.get_light().unwrap())
+            .collect()
+    }
+
+    pub fn draw<'a>(&'a mut self, gl: &WebGl2RenderingContext, ctx: &mut DrawableContext<'a>) {
+        let lights = self.get_lights();
+        ctx.lights = Some(lights);
+        for entity in self.get_renderables_mut() {
+            entity.draw(gl, ctx);
+        }
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        for entity in self.entities.iter_mut() {
+            entity.update(dt);
         }
     }
 }

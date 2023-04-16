@@ -1,7 +1,13 @@
 mod buffer;
 mod entity;
+mod light;
+mod material;
+mod mesh;
 mod renderable;
 
 pub use buffer::EntityBuffer;
 pub use entity::Entity;
-pub use renderable::{Drawable, Renderable};
+pub use light::Light;
+pub use material::Material;
+pub use mesh::Mesh;
+pub use renderable::{DrawableContext, Renderable, Transform, Transforms};

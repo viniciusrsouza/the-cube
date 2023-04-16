@@ -1,4 +1,5 @@
 mod app;
+mod camera;
 mod model;
 mod resources;
 mod sandbox;
@@ -7,13 +8,14 @@ mod utils;
 use std::{cell::RefCell, rc::Rc, sync::Mutex};
 
 use app::{App, AppState};
-use sandbox::{load_shaders, make_cube};
+use sandbox::{load_shaders, make_cube, make_lights};
 use utils::window;
 use wasm_bindgen::prelude::*;
 
 use crate::{app::Viewport, utils::request_animation_frame};
 
 extern crate console_error_panic_hook;
+extern crate nalgebra_glm as glm;
 use std::panic;
 
 lazy_static::lazy_static! {
@@ -46,6 +48,7 @@ pub async fn run() -> Result<(), JsValue> {
         .await
         .expect("Failed to load shaders");
     make_cube(&mut app);
+    make_lights(&mut app);
 
     start_loop(app);
     Ok(())

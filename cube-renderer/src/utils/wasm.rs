@@ -30,4 +30,8 @@ impl Instant {
     pub fn elapsed(&self) -> f64 {
         now() - self.start
     }
+
+    pub fn reset(&mut self) {
+        self.start = now();
+    }
 }

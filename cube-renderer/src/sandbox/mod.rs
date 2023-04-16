@@ -1,42 +1,88 @@
 use crate::{
     app::App,
     asset_to_str,
-    model::{Entity, Renderable},
+    model::{Entity, Light, Material, Renderable},
     resources::ShaderError,
 };
 
+fn cube_material() -> Material {
+    Material::new(glm::vec4(0.4, 0.4, 0.4, 1.0), 32.)
+}
+
+fn light_material() -> Material {
+    Material::new(glm::vec4(1.0, 1.0, 1.0, 1.0), 32.)
+}
+
+fn make_light() -> Light {
+    Light::new(glm::vec4(1., 1., 1., 1.))
+}
+
 #[rustfmt::skip]
-pub fn make_cube(app: &mut App) {
-    let mut cube = Entity::new();
+fn cube_renderable(app: &mut App, material: Material) -> Renderable {
     let vertices = vec![
-         0.5, -0.5, -0.5,
-         0.5, -0.5,  0.5,
-        -0.5, -0.5,  0.5,
-        -0.5, -0.5, -0.5,
-         0.5,  0.5, -0.5,
-         0.5,  0.5,  0.5,
-        -0.5,  0.5,  0.5,
-        -0.5,  0.5, -0.5
-    ];
-    let indices = vec![
-        0, 1, 2, 
-        0, 2, 3,
-        4, 5, 6,
-        4, 6, 7,
-        0, 1, 5,
-        0, 5, 4,
-        3, 2, 6,
-        3, 6, 7,
-        1, 2, 6,
-        1, 6, 5,
-        0, 3, 7,
-        0, 7, 4
-    ];
-    let mut renderable = Renderable::new(&app.gl, vertices, indices);
+        // positions       // normals
+        -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,
+         0.5, -0.5, -0.5,  0.0,  0.0, -1.0,
+         0.5,  0.5, -0.5,  0.0,  0.0, -1.0,
+         0.5,  0.5, -0.5,  0.0,  0.0, -1.0,
+        -0.5,  0.5, -0.5,  0.0,  0.0, -1.0,
+        -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,
+
+        -0.5, -0.5,  0.5,  0.0,  0.0,  1.0,
+         0.5, -0.5,  0.5,  0.0,  0.0,  1.0,
+         0.5,  0.5,  0.5,  0.0,  0.0,  1.0,
+         0.5,  0.5,  0.5,  0.0,  0.0,  1.0,
+        -0.5,  0.5,  0.5,  0.0,  0.0,  1.0,
+        -0.5, -0.5,  0.5,  0.0,  0.0,  1.0,
+
+        -0.5,  0.5,  0.5, -1.0,  0.0,  0.0,
+        -0.5,  0.5, -0.5, -1.0,  0.0,  0.0,
+        -0.5, -0.5, -0.5, -1.0,  0.0,  0.0,
+        -0.5, -0.5, -0.5, -1.0,  0.0,  0.0,
+        -0.5, -0.5,  0.5, -1.0,  0.0,  0.0,
+        -0.5,  0.5,  0.5, -1.0,  0.0,  0.0,
+
+         0.5,  0.5,  0.5,  1.0,  0.0,  0.0,
+         0.5,  0.5, -0.5,  1.0,  0.0,  0.0,
+         0.5, -0.5, -0.5,  1.0,  0.0,  0.0,
+         0.5, -0.5, -0.5,  1.0,  0.0,  0.0,
+         0.5, -0.5,  0.5,  1.0,  0.0,  0.0,
+         0.5,  0.5,  0.5,  1.0,  0.0,  0.0,
+
+        -0.5, -0.5, -0.5,  0.0, -1.0,  0.0,
+         0.5, -0.5, -0.5,  0.0, -1.0,  0.0,
+         0.5, -0.5,  0.5,  0.0, -1.0,  0.0,
+         0.5, -0.5,  0.5,  0.0, -1.0,  0.0,
+        -0.5, -0.5,  0.5,  0.0, -1.0,  0.0,
+        -0.5, -0.5, -0.5,  0.0, -1.0,  0.0,
+
+        -0.5,  0.5, -0.5,  0.0,  1.0,  0.0,
+         0.5,  0.5, -0.5,  0.0,  1.0,  0.0,
+         0.5,  0.5,  0.5,  0.0,  1.0,  0.0,
+         0.5,  0.5,  0.5,  0.0,  1.0,  0.0,
+        -0.5,  0.5,  0.5,  0.0,  1.0,  0.0,
+        -0.5,  0.5, -0.5,  0.0,  1.0,  0.0
+    ]; 
+
+    let mut renderable = Renderable::new(&app.gl, vertices, material);
     renderable.shader = Some("debug".to_string());
     renderable.load_attributes(&app.gl, &app.assets);
+    renderable
+}
+
+pub fn make_cube(app: &mut App) {
+    let mut cube = Entity::new(glm::vec3(0., 0., 0.));
+    let renderable = cube_renderable(app, cube_material());
     cube.add_renderable(renderable);
     app.entities.add(cube);
+}
+
+pub fn make_lights(app: &mut App) {
+    let mut light = Entity::new(glm::vec3(-3., 2., -5.));
+    let mut renderable = cube_renderable(app, light_material());
+    renderable.set_light(Some(make_light()));
+    light.add_renderable(renderable);
+    app.entities.add(light);
 }
 
 pub async fn load_shaders(app: &mut App) -> Result<(), ShaderError> {

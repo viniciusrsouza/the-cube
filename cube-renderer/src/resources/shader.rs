@@ -110,6 +110,52 @@ impl Shader {
     }
 }
 
+// uniforms
+#[allow(dead_code)]
+impl Shader {
+    pub fn set_uniform_mat4(&self, gl: &WebGl2RenderingContext, name: &str, value: &glm::Mat4) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform_matrix4fv_with_f32_array(Some(&location), false, value.as_slice());
+    }
+
+    pub fn set_uniform_vec3(&self, gl: &WebGl2RenderingContext, name: &str, value: &glm::Vec3) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform3fv_with_f32_array(Some(&location), value.as_slice());
+    }
+
+    pub fn set_uniform_vec4(&self, gl: &WebGl2RenderingContext, name: &str, value: &glm::Vec4) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform4fv_with_f32_array(Some(&location), value.as_slice());
+    }
+
+    pub fn set_uniform_float(&self, gl: &WebGl2RenderingContext, name: &str, value: f32) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform1f(Some(&location), value);
+    }
+
+    pub fn set_uniform_int(&self, gl: &WebGl2RenderingContext, name: &str, value: i32) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform1i(Some(&location), value);
+    }
+
+    pub fn set_uniform_bool(&self, gl: &WebGl2RenderingContext, name: &str, value: bool) {
+        let location = gl
+            .get_uniform_location(&self.id, name)
+            .expect(format!("Uniform location for '{}' not found", name).as_str());
+        gl.uniform1i(Some(&location), value as i32);
+    }
+}
+
 #[derive(Debug)]
 pub enum ShaderError {
     CompileError(String),

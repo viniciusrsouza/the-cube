@@ -1,7 +1,7 @@
 use js_sys::Float32Array;
 use web_sys::{WebGl2RenderingContext, WebGlBuffer, WebGlProgram, WebGlVertexArrayObject};
 
-use crate::model::{DrawableContext, Transforms};
+use crate::model::DrawableContext;
 
 pub struct Mesh {
     pub vao: WebGlVertexArrayObject,
@@ -62,17 +62,10 @@ impl Mesh {
     }
 
     pub fn draw<'a>(&self, gl: &WebGl2RenderingContext, ctx: &DrawableContext<'a>) {
-        let mut model = glm::Mat4::identity();
+        let model = ctx.get_model_matrix();
         let view = ctx.camera.view();
         let projection = ctx.camera.projection(ctx.viewport);
         let view_pos = ctx.camera.position;
-
-        ctx.transforms.as_ref().and_then(|transforms| {
-            for transform in transforms.iter() {
-                transform.apply(&mut model);
-            }
-            Some(())
-        });
 
         if let Some(shader) = ctx.shader {
             shader.use_program(gl);

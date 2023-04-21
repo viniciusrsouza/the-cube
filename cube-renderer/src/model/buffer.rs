@@ -53,11 +53,16 @@ impl EntityBuffer {
             .collect()
     }
 
-    pub fn draw<'a>(&'a mut self, gl: &WebGl2RenderingContext, ctx: &mut DrawableContext<'a>) {
+    pub fn draw<'a>(
+        &'a mut self,
+        gl: &WebGl2RenderingContext,
+        ctx: &mut DrawableContext<'a>,
+        dt: f32,
+    ) {
         let lights = self.get_lights();
         ctx.lights = Some(lights);
         for entity in self.get_renderables_mut() {
-            entity.draw(gl, ctx);
+            entity.draw(gl, ctx, dt);
         }
     }
 

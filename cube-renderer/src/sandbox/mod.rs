@@ -14,7 +14,7 @@ fn light_material() -> Material {
 }
 
 fn make_light() -> Light {
-    Light::new(glm::vec4(1., 1., 1., 1.))
+    Light::new(glm::vec4(1., 0., 1., 1.))
 }
 
 #[rustfmt::skip]

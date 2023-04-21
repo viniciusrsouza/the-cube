@@ -68,14 +68,14 @@ impl App {
 
         self.entities.update(dt);
     }
-    pub fn draw(&mut self, _dt: f32) {
+    pub fn draw(&mut self, dt: f32) {
         let viewport = Viewport {
             width: self.canvas.width() as u32,
             height: self.canvas.height() as u32,
         };
         let mut ctx = DrawableContext::new(&self.gl, &self.camera, &self.assets, &viewport);
         self.clear();
-        self.entities.draw(&self.gl, &mut ctx);
+        self.entities.draw(&self.gl, &mut ctx, dt);
     }
 
     fn sync_state(&mut self, mut state: MutexGuard<AppState>) {

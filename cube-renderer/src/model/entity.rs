@@ -1,15 +1,19 @@
 use web_sys::WebGl2RenderingContext;
 
+use crate::console;
+
 use super::{
-    renderable::{Renderable, Transform},
+    renderable::Renderable,
+    transition::{self},
     DrawableContext, Light,
 };
 
 pub struct Entity {
     pub id: u32,
     position: glm::Vec3,
-    renderable: Option<Renderable>,
     rotation: glm::Vec3,
+    renderable: Option<Renderable>,
+    is_dirty: bool,
 }
 
 impl Entity {
@@ -19,6 +23,7 @@ impl Entity {
             position,
             renderable: None,
             rotation: glm::vec3(0.0, 0.0, 0.0),
+            is_dirty: true,
         }
     }
 
@@ -50,15 +55,28 @@ impl Entity {
         })
     }
 
-    pub fn update(&mut self, dt: f32) {
-        self.rotation = glm::vec3(0.0, 0.0025 * dt, 0.0);
+    pub fn update(&mut self, dt: f32) {}
+
+    pub fn draw<'a>(
+        &'a mut self,
+        gl: &WebGl2RenderingContext,
+        ctx: &mut DrawableContext<'a>,
+        dt: f32,
+    ) {
+        self.sync_with_renderer();
+        let renderable = self.renderable.as_mut().unwrap();
+        renderable.draw(gl, ctx, dt);
     }
 
-    pub fn draw<'a>(&'a mut self, gl: &WebGl2RenderingContext, ctx: &mut DrawableContext<'a>) {
+    fn sync_with_renderer(&mut self) {
+        if !self.is_dirty {
+            return;
+        }
+
         let renderable = self.renderable.as_mut().unwrap();
-        renderable
-            .with_transform(Transform::Translate(self.position))
-            .with_transform(Transform::Rotate(self.rotation))
-            .draw(gl, ctx);
+        renderable.translate(self.position);
+        renderable.smooth_rotate(self.rotation, 300.0, transition::easing::ease_in_out);
+
+        self.is_dirty = false;
     }
 }

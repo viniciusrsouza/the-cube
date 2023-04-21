@@ -3,17 +3,21 @@ use web_sys::WebGl2RenderingContext;
 use crate::{
     app::Viewport,
     camera::Camera,
+    console,
     resources::{Assets, Shader},
 };
 
-use super::{mesh::Mesh, Light, Material};
+use super::{mesh::Mesh, transition::Transition, Light, Material};
 
 pub struct Renderable {
     mesh: Mesh,
     material: Material,
-    transforms: Vec<Transform>,
     pub light: Option<Light>,
     pub shader: Option<String>,
+    rotation: glm::Vec3,
+    position: glm::Vec3,
+    rotation_transition: Option<Transition<glm::Vec3>>,
+    position_transition: Option<Transition<glm::Vec3>>,
 }
 
 impl Renderable {
@@ -24,7 +28,10 @@ impl Renderable {
             material,
             shader: None,
             light: None,
-            transforms: Vec::new(),
+            rotation: glm::vec3(0.0, 0.0, 0.0),
+            position: glm::vec3(0.0, 0.0, 0.0),
+            rotation_transition: None,
+            position_transition: None,
         }
     }
 
@@ -52,17 +59,54 @@ impl Renderable {
         self.light = light;
     }
 
-    pub fn with_transform(&mut self, transform: Transform) -> &mut Self {
-        self.transforms.push(transform);
-        self
+    pub fn translate(&mut self, position: glm::Vec3) {
+        self.position = position;
     }
 
-    pub fn draw<'a>(&'a mut self, gl: &WebGl2RenderingContext, ctx: &mut DrawableContext<'a>) {
+    pub fn smooth_translate(
+        &mut self,
+        position: glm::Vec3,
+        duration: f32,
+        function: fn(f32) -> f32,
+    ) {
+        self.position_transition =
+            Some(Transition::new(self.position, position, duration, function));
+    }
+
+    pub fn rotate(&mut self, rotation: glm::Vec3) {
+        self.rotation = rotation;
+    }
+
+    pub fn smooth_rotate(&mut self, rotation: glm::Vec3, duration: f32, function: fn(f32) -> f32) {}
+
+    pub fn draw<'a>(
+        &'a mut self,
+        gl: &WebGl2RenderingContext,
+        ctx: &mut DrawableContext<'a>,
+        dt: f32,
+    ) {
+        self.apply_transitions(dt);
+        ctx.rotation = self.rotation;
+        ctx.position = self.position;
         let shader = self.get_shader(ctx.assets);
         ctx.shader = Some(shader);
         ctx.material = Some(&self.material);
-        ctx.transforms = Some(&mut self.transforms);
         self.mesh.draw(gl, ctx);
+    }
+
+    fn apply_transitions(&mut self, dt: f32) {
+        if let Some(transition) = &mut self.rotation_transition {
+            self.rotation = transition.update(dt);
+            if transition.is_finished() {
+                self.rotation_transition = None;
+            }
+        }
+        if let Some(transition) = &mut self.position_transition {
+            self.position = transition.update(dt);
+            if transition.is_finished() {
+                self.position_transition = None;
+            }
+        }
     }
 }
 
@@ -73,8 +117,9 @@ pub struct DrawableContext<'a> {
     pub viewport: &'a Viewport,
     pub shader: Option<&'a Shader>,
     pub material: Option<&'a Material>,
-    pub transforms: Option<&'a mut Vec<Transform>>,
     pub lights: Option<Vec<Light>>,
+    pub rotation: glm::Vec3,
+    pub position: glm::Vec3,
 }
 
 impl<'a> DrawableContext<'a> {
@@ -91,46 +136,18 @@ impl<'a> DrawableContext<'a> {
             viewport,
             shader: None,
             material: None,
-            transforms: None,
             lights: None,
+            rotation: glm::vec3(0.0, 0.0, 0.0),
+            position: glm::vec3(0.0, 0.0, 0.0),
         }
     }
-}
 
-impl Drop for DrawableContext<'_> {
-    fn drop(&mut self) {
-        self.transforms.as_mut().and_then(|ts| {
-            ts.clear();
-            Some(())
-        });
-    }
-}
-
-#[allow(unused)]
-pub enum Transform {
-    Translate(glm::Vec3),
-    Rotate(glm::Vec3),
-    Scale(glm::Vec3),
-}
-
-pub trait Transforms<T> {
-    fn apply(&self, value: &mut T);
-}
-
-impl Transforms<glm::Mat4> for Transform {
-    fn apply(&self, value: &mut glm::Mat4) {
-        match self {
-            Transform::Translate(translation) => {
-                *value = glm::translate(value, &translation);
-            }
-            Transform::Rotate(rotation) => {
-                *value = glm::rotate(value, rotation.x, &glm::vec3(1.0, 0.0, 0.0));
-                *value = glm::rotate(value, rotation.y, &glm::vec3(0.0, 1.0, 0.0));
-                *value = glm::rotate(value, rotation.z, &glm::vec3(0.0, 0.0, 1.0));
-            }
-            Transform::Scale(scale) => {
-                *value = glm::scale(value, &scale);
-            }
-        }
+    pub(crate) fn get_model_matrix(&self) -> glm::Mat4 {
+        let mut model = glm::identity();
+        model = glm::translate(&model, &self.position);
+        model = glm::rotate(&model, self.rotation.x, &glm::vec3(1.0, 0.0, 0.0));
+        model = glm::rotate(&model, self.rotation.y, &glm::vec3(0.0, 1.0, 0.0));
+        model = glm::rotate(&model, self.rotation.z, &glm::vec3(0.0, 0.0, 1.0));
+        model
     }
 }

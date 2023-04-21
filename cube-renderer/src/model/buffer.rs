@@ -1,4 +1,8 @@
+use std::sync::MutexGuard;
+
 use web_sys::WebGl2RenderingContext;
+
+use crate::app::AppState;
 
 use super::{DrawableContext, Entity, Light};
 
@@ -66,9 +70,9 @@ impl EntityBuffer {
         }
     }
 
-    pub fn update(&mut self, dt: f32) {
+    pub fn update(&mut self, dt: f32, state: &mut MutexGuard<AppState>) {
         for entity in self.entities.iter_mut() {
-            entity.update(dt);
+            entity.update(dt, state);
         }
     }
 }

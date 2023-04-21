@@ -63,10 +63,9 @@ impl App {
         );
     }
 
-    pub fn update(&mut self, dt: f32, state: MutexGuard<AppState>) {
-        self.sync_state(state);
-
-        self.entities.update(dt);
+    pub fn update(&mut self, dt: f32, mut state: MutexGuard<AppState>) {
+        self.sync_state(&mut state);
+        self.entities.update(dt, &mut state);
     }
     pub fn draw(&mut self, dt: f32) {
         let viewport = Viewport {
@@ -78,7 +77,7 @@ impl App {
         self.entities.draw(&self.gl, &mut ctx, dt);
     }
 
-    fn sync_state(&mut self, mut state: MutexGuard<AppState>) {
+    fn sync_state(&mut self, state: &mut MutexGuard<AppState>) {
         if let Some(viewport) = state.viewport.take() {
             self.sync_viewport(&viewport);
             state.viewport = None;

@@ -1,6 +1,8 @@
+use std::sync::MutexGuard;
+
 use web_sys::WebGl2RenderingContext;
 
-use crate::console;
+use crate::app::{modifiers, AppState, Key};
 
 use super::{
     renderable::Renderable,
@@ -55,7 +57,18 @@ impl Entity {
         })
     }
 
-    pub fn update(&mut self, dt: f32) {}
+    pub fn update(&mut self, _dt: f32, state: &mut MutexGuard<AppState>) {
+        if state.keyboard.is_down(Key::Space, modifiers::SHIFT, true) {
+            self.rotation.x += 0.5;
+            self.is_dirty = true;
+        } else if state.keyboard.is_down(Key::Space, modifiers::CTRL, true) {
+            self.rotation.y += 0.5;
+            self.is_dirty = true;
+        } else if state.keyboard.is_down(Key::Space, 0, false) {
+            self.rotation.z += 0.5;
+            self.is_dirty = true;
+        }
+    }
 
     pub fn draw<'a>(
         &'a mut self,

@@ -77,7 +77,10 @@ impl Renderable {
         self.rotation = rotation;
     }
 
-    pub fn smooth_rotate(&mut self, rotation: glm::Vec3, duration: f32, function: fn(f32) -> f32) {}
+    pub fn smooth_rotate(&mut self, rotation: glm::Vec3, duration: f32, function: fn(f32) -> f32) {
+        self.rotation_transition =
+            Some(Transition::new(self.rotation, rotation, duration, function));
+    }
 
     pub fn draw<'a>(
         &'a mut self,

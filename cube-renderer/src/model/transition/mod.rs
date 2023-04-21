@@ -1,5 +1,3 @@
-use crate::console;
-
 pub mod easing;
 
 pub struct Transition<T> {
@@ -39,7 +37,6 @@ impl Transition<glm::Vec3> {
     pub fn update(&mut self, dt: f32) -> glm::Vec3 {
         self.elapsed += dt;
         let time = self.get_time();
-        console::log!("time: {}", time);
         let c = (self.function)(time);
         self.start + c * (self.end - self.start)
     }

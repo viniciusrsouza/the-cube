@@ -25,6 +25,7 @@ features = [
 
   'Element',
   'EventTarget',
+  "KeyboardEvent",
   'DomWindowResizeEventDetail',
   'HtmlCanvasElement',
 

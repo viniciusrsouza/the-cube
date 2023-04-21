@@ -7,12 +7,15 @@ mod utils;
 
 use std::{cell::RefCell, rc::Rc, sync::Mutex};
 
-use app::{App, AppState};
+use app::{from_key_code, App, AppState};
 use sandbox::{load_shaders, make_cube, make_lights};
 use utils::window;
 use wasm_bindgen::prelude::*;
 
-use crate::{app::Viewport, utils::request_animation_frame};
+use crate::{
+    app::{modifiers, Viewport},
+    utils::request_animation_frame,
+};
 
 extern crate console_error_panic_hook;
 extern crate nalgebra_glm as glm;
@@ -55,18 +58,57 @@ pub async fn run() -> Result<(), JsValue> {
 }
 
 fn init_events() -> Result<(), JsValue> {
-    let resize_callback = Closure::<dyn FnMut()>::new(move || {
-        let window = window();
-        let width = window.inner_width().unwrap().as_f64().unwrap() as u32;
-        let height = window.inner_height().unwrap().as_f64().unwrap() as u32;
-        let mut state = HANDLE.lock().unwrap();
-        state.viewport = Some(Viewport { width, height });
-    });
-    window()
-        .add_event_listener_with_callback("resize", resize_callback.as_ref().unchecked_ref())?;
-    resize_callback.forget();
+    let resize = Closure::wrap(Box::new(on_resize) as Box<dyn Fn()>);
+    window().set_onresize(Some(resize.as_ref().unchecked_ref()));
+    resize.forget();
+
+    let keydown = Closure::wrap(Box::new(on_keydown) as Box<dyn Fn(web_sys::KeyboardEvent)>);
+    window().set_onkeydown(Some(keydown.as_ref().unchecked_ref()));
+    keydown.forget();
+
+    let keyup = Closure::wrap(Box::new(on_keyup) as Box<dyn Fn(web_sys::KeyboardEvent)>);
+    window().set_onkeyup(Some(keyup.as_ref().unchecked_ref()));
+    keyup.forget();
 
     Ok(())
+}
+
+fn on_resize() {
+    let window = window();
+    let width = window.inner_width().unwrap().as_f64().unwrap() as u32;
+    let height = window.inner_height().unwrap().as_f64().unwrap() as u32;
+    let mut state = HANDLE.lock().unwrap();
+    state.viewport = Some(Viewport { width, height });
+}
+
+fn parse_key_event(e: web_sys::KeyboardEvent) -> (app::Key, u8) {
+    let key = from_key_code(e.code());
+    let mut mods: u8 = 0;
+    if e.shift_key() {
+        mods |= modifiers::SHIFT;
+    }
+    if e.ctrl_key() {
+        mods |= modifiers::CTRL;
+    }
+    if e.alt_key() {
+        mods |= modifiers::ALT;
+    }
+    if e.meta_key() {
+        mods |= modifiers::META;
+    }
+    (key, mods)
+}
+
+fn on_keydown(e: web_sys::KeyboardEvent) {
+    let mut state = HANDLE.lock().unwrap();
+    let (key, mods) = parse_key_event(e);
+    state.keyboard.on_keydown(key, mods);
+}
+
+fn on_keyup(e: web_sys::KeyboardEvent) {
+    let mut state = HANDLE.lock().unwrap();
+    let key = from_key_code(e.code());
+    state.keyboard.on_keyup(key);
 }
 
 #[wasm_bindgen]

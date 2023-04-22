@@ -1,9 +1,13 @@
+mod cube_behaviour;
+
 use crate::{
     app::App,
     asset_to_str,
     model::{Entity, Light, Material, Renderable},
     resources::ShaderError,
 };
+
+use self::cube_behaviour::CubeBehaviour;
 
 fn cube_material() -> Material {
     Material::new(glm::vec4(0.4, 0.4, 0.4, 1.0), 32.)
@@ -74,6 +78,7 @@ pub fn make_cube(app: &mut App) {
     let mut cube = Entity::new(glm::vec3(0., 0., 0.));
     let renderable = cube_renderable(app, cube_material());
     cube.add_renderable(renderable);
+    cube.add_behaviour(Box::new(CubeBehaviour::new()));
     app.entities.add(cube);
 }
 

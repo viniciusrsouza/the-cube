@@ -6,7 +6,7 @@ out vec4 outColor;
 in vec3 v_Position;
 in vec3 v_Normal;
 
-#define LIGHT_COUNT 1
+#define MAX_LIGHTS 8
 
 struct Material {
     vec4 ambient;
@@ -23,7 +23,8 @@ struct Light {
 };
 
 uniform Material u_Material;
-uniform Light u_Lights[LIGHT_COUNT];
+uniform int u_LightCount;
+uniform Light u_Lights[MAX_LIGHTS];
 uniform vec3 u_ViewPos;
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
     vec3 viewDir = normalize(u_ViewPos - v_Position);
 
     vec4 result = vec4(0.0);
-    for(int i = 0; i < LIGHT_COUNT; i++) {
+    for(int i = 0; i < u_LightCount; i++) {
         vec3 lightDir = normalize(u_Lights[i].position - v_Position);
         vec3 reflectDir = reflect(-lightDir, normal);
 

@@ -83,11 +83,14 @@ pub fn make_cube(app: &mut App) {
 }
 
 pub fn make_lights(app: &mut App) {
-    let mut light = Entity::new(glm::vec3(-3., 2., -5.));
-    let mut renderable = cube_renderable(app, light_material());
-    renderable.set_light(Some(make_light()));
-    light.add_renderable(renderable);
-    app.entities.add(light);
+    let positions = vec![glm::vec3(-3., 2., -5.), glm::vec3(3., 2., -5.)];
+    for position in positions {
+        let mut light = Entity::new(position);
+        let mut renderable = cube_renderable(app, light_material());
+        renderable.set_light(Some(make_light()));
+        light.add_renderable(renderable);
+        app.entities.add(light);
+    }
 }
 
 pub async fn load_shaders(app: &mut App) -> Result<(), ShaderError> {

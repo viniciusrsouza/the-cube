@@ -79,6 +79,7 @@ impl Mesh {
             }
 
             if let Some(lights) = &ctx.lights {
+                shader.set_uniform_int(gl, "u_LightCount", lights.len() as i32);
                 for (i, light) in lights.iter().enumerate() {
                     light.apply_to_shader(gl, shader, i);
                 }

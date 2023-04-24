@@ -15,8 +15,6 @@
 		});
 		run();
 	});
-
-	console.log('messages', messages);
 </script>
 
 <svelte:window bind:innerHeight={height} bind:innerWidth={width} />

@@ -39,18 +39,21 @@ mod message_types {
     }
 }
 
+#[derive(Debug)]
 pub enum Message {
     Handshake(String),
     Sync(Transform),
     Transform(Transform),
 }
 
+#[derive(Debug)]
 pub enum Transform {
     Rotate(glm::Vec3),
     Translate(glm::Vec3),
     Scale(glm::Vec3),
 }
 
+#[derive(Debug)]
 pub enum MessageError {
     InvalidMessageType,
     InvalidTransformType,
@@ -77,7 +80,7 @@ impl Serializable for glm::Vec3 {
     where
         Self: Sized,
     {
-        if bytes.len() != 12 {
+        if bytes.len() < 12 {
             return Err(MessageError::InvalidMessageLength);
         }
         let x = f32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
@@ -114,20 +117,20 @@ impl Serializable for Transform {
     where
         Self: Sized,
     {
-        if bytes.len() < 2 {
+        if bytes.len() < 1 {
             return Err(MessageError::InvalidMessageLength);
         }
         match bytes[0] {
             message_types::transform::ROTATE => {
-                let vec = glm::Vec3::from_bytes(&bytes[2..])?;
+                let vec = glm::Vec3::from_bytes(&bytes[1..])?;
                 Ok(Transform::Rotate(vec))
             }
             message_types::transform::TRANSLATE => {
-                let vec = glm::Vec3::from_bytes(&bytes[2..])?;
+                let vec = glm::Vec3::from_bytes(&bytes[1..])?;
                 Ok(Transform::Translate(vec))
             }
             message_types::transform::SCALE => {
-                let vec = glm::Vec3::from_bytes(&bytes[2..])?;
+                let vec = glm::Vec3::from_bytes(&bytes[1..])?;
                 Ok(Transform::Scale(vec))
             }
             _ => Err(MessageError::InvalidTransformType),

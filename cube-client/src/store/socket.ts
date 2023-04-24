@@ -7,7 +7,6 @@ const messageStore = writable<Message[]>([]);
 const conn = new Connection('js-client');
 
 conn.onMessage = (message) => {
-	console.log('message', message);
 	messageStore.update((messages) => [...messages, message]);
 };
 

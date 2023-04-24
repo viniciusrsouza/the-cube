@@ -1,6 +1,7 @@
 mod app;
 mod camera;
 mod model;
+mod network;
 mod resources;
 mod sandbox;
 mod utils;

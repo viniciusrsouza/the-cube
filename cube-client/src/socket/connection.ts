@@ -14,7 +14,6 @@ export class Connection {
 	}
 
 	private open() {
-		console.log('Connected to server');
 		this.onOpen?.();
 	}
 

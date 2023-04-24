@@ -36,6 +36,13 @@ features = [
   'WebGlShader',
   'WebGlUniformLocation',
   'WebGlTexture',
+
+  "BinaryType",
+  "Blob",
+  "ErrorEvent",
+  "MessageEvent",
+  "ProgressEvent",
+  "WebSocket",
   
   'Headers',
   'Request',

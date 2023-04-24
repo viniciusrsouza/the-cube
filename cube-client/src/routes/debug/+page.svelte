@@ -10,7 +10,7 @@
 	let timer: NodeJS.Timeout;
 	let msgs: Message[] = [];
 
-	let rotation = [0, 0, 0];
+	let rotation: [number, number, number] = [0, 0, 0];
 
 	$: {
 		if (timer) clearTimeout(timer);
@@ -36,7 +36,7 @@
 			type: MessageType.TRANSFORM,
 			transform: {
 				type: TransformType.ROTATE,
-				data: [x, y, z]
+				data: rotation
 			}
 		};
 		store.conn.send(message);
@@ -57,6 +57,7 @@
 			<input
 				class="w-32 border-2 border-gray-300 rounded-lg px-4 py-2"
 				type="number"
+				step={0.1}
 				bind:value={x}
 			/>
 		</div>
@@ -65,6 +66,7 @@
 			<input
 				class="w-32 border-2 border-gray-300 rounded-lg px-4 py-2"
 				type="number"
+				step={0.1}
 				bind:value={y}
 			/>
 		</div>
@@ -73,6 +75,7 @@
 			<input
 				class="w-32 border-2 border-gray-300 rounded-lg px-4 py-2"
 				type="number"
+				step={0.1}
 				bind:value={z}
 			/>
 		</div>

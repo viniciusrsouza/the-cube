@@ -1,13 +1,22 @@
 <script lang="ts">
 	import { run } from 'cube-renderer';
 	import { onMount } from 'svelte';
+	import store from '$store/socket';
+	import type { Message } from '$socket/message';
 
 	let height = 0;
 	let width = 0;
+	let messages: Message[] = [];
 
 	onMount(() => {
+		store.conn.connect();
+		store.subscribe((messages) => {
+			messages = messages;
+		});
 		run();
 	});
+
+	console.log('messages', messages);
 </script>
 
 <svelte:window bind:innerHeight={height} bind:innerWidth={width} />

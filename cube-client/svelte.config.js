@@ -11,7 +11,9 @@ const config = {
 			$atoms: './src/components/atoms',
 			$molecules: './src/components/molecules',
 			$organisms: './src/components/organisms',
-			$utils: './src/utils'
+			$utils: './src/utils',
+			$store: './src/store',
+			$socket: './src/socket'
 		}
 	}
 };

@@ -1,8 +1,10 @@
+use self::config::Config;
 pub use self::{
     keyboard::{from_key_code, modifiers, Key, Keyboard},
     viewport::Viewport,
 };
 
+mod config;
 mod keyboard;
 mod viewport;
 
@@ -10,6 +12,7 @@ mod viewport;
 pub struct AppState {
     pub viewport: Option<Viewport>,
     pub keyboard: Keyboard,
+    pub config: Config,
 }
 
 impl AppState {
@@ -17,6 +20,7 @@ impl AppState {
         AppState {
             viewport: None,
             keyboard: Keyboard::new(),
+            config: Config::new("".to_string()),
         }
     }
 }

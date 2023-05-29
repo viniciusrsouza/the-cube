@@ -33,5 +33,5 @@ func routes() {
 func main() {
 	fmt.Println("Starting socket server at port 8080")
 	routes()
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("0.0.0.0:8080", nil)
 }

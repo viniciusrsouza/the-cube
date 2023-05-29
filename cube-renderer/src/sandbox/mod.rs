@@ -10,7 +10,7 @@ use crate::{
 use self::cube_behaviour::CubeBehaviour;
 
 fn cube_material() -> Material {
-    Material::new(glm::vec4(0.4, 0.4, 0.4, 1.0), 32.)
+    Material::new(glm::vec4(0.25, 0.25, 0.25, 1.0), 32.)
 }
 
 fn light_material() -> Material {
@@ -18,7 +18,7 @@ fn light_material() -> Material {
 }
 
 fn make_light() -> Light {
-    Light::new(glm::vec4(1., 0., 1., 1.))
+    Light::new(glm::vec4(1., 1., 1., 1.))
 }
 
 #[rustfmt::skip]

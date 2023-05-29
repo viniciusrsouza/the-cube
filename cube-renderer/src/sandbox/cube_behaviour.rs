@@ -5,6 +5,7 @@ use crate::{
     model::{Behaviour, EntityState},
     network::WebSocket,
     utils::{Message, Transform},
+    HANDLE,
 };
 
 pub struct CubeBehaviour {
@@ -13,8 +14,15 @@ pub struct CubeBehaviour {
 
 impl CubeBehaviour {
     pub fn new() -> Self {
+        let host;
+        {
+            let state = HANDLE.lock().unwrap();
+            host = state.config.host.clone();
+        }
+
+        let url = format!("ws://{}:8080/ws", host);
         Self {
-            conn: WebSocket::new("ws://localhost:8080/ws", "cube"),
+            conn: WebSocket::new(url, "cube"),
         }
     }
 }

@@ -8,6 +8,7 @@ use crate::{
     model::{DrawableContext, EntityBuffer},
     resources::Assets,
     utils::Instant,
+    HANDLE,
 };
 
 use super::{AppState, Viewport};
@@ -23,10 +24,15 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Result<App, JsValue> {
+    pub fn new(host: String) -> Result<App, JsValue> {
         let document = web_sys::window().unwrap().document().unwrap();
         let canvas = document.get_element_by_id("canvas").unwrap();
         let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<HtmlCanvasElement>()?;
+
+        {
+            let mut state = HANDLE.lock().unwrap();
+            state.config.host = host;
+        }
 
         let gl = canvas
             .get_context("webgl2")?

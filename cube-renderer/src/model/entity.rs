@@ -99,7 +99,8 @@ impl EntityState {
         }
 
         renderable.translate(self.position);
-        renderable.smooth_rotate(self.rotation, 300.0, transition::easing::ease_in_out);
+        // renderable.rotate(self.rotation);
+        renderable.smooth_rotate(self.rotation, 100.0, transition::easing::ease_in_out);
 
         self.is_dirty = false;
     }

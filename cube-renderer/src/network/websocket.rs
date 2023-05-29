@@ -30,8 +30,8 @@ macro_rules! get_pool {
 }
 
 impl WebSocket {
-    pub fn new(url: &'static str, pool: &'static str) -> Self {
-        let inner = web_sys::WebSocket::new(url).unwrap();
+    pub fn new(url: String, pool: &'static str) -> Self {
+        let inner = web_sys::WebSocket::new(url.as_str()).unwrap();
 
         let on_open = Closure::wrap(Box::new(move || {
             console::log!("WebSocket opened");

@@ -44,8 +44,8 @@ fn start_loop(mut app: App) {
 }
 
 #[wasm_bindgen]
-pub async fn run() -> Result<(), JsValue> {
-    let mut app = App::new()?;
+pub async fn run(host: String) -> Result<(), JsValue> {
+    let mut app = App::new(host)?;
     init_events()?;
 
     load_shaders(&mut app)
